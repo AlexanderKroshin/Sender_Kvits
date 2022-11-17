@@ -104,11 +104,11 @@ class Sender:
                     raise KvitNotFoundError
 
         except FileNotFoundError as e:
-            print(e)
+            print("Не найден список файлов для отправки")
             logging.error("Не найден список файлов для отправки")
             messagebox.showerror("Ошибка", "Не найден список файлов для отправки")
         except KvitNotFoundError as e:
-            print(e)
+            print("Найдены не все квитанции")
             logging.error("Найдены не все квитанции")
             messagebox.showerror("Ошибка", "Найдены не все квитанции")
         except Exception as e:
@@ -122,11 +122,11 @@ class Sender:
                 self.imap = imaplib.IMAP4_SSL(imap_server, imap_port)
                 self.imap.login(user, password)
             except smtplib.SMTPException as e:
-                print(e)
+                print(f"Не корректные настройки почты, {e}")
                 logging.error(f"Не корректные настройки почты, {e}")
                 messagebox.showerror("Ошибка", "Не корректные настройки почты")
             except Exception as e:
-                print(e)
+                print(f"Не корректные настройки почты, {e}")
                 logging.error(f"Не корректные настройки почты, {e}")
                 messagebox.showerror("Ошибка", f"Не корректные настройки почты, {e}")
             else:
@@ -189,7 +189,7 @@ class Sender:
             seen = '\\SEEN'
             directory = '"&BB4EQgQ,BEAEMAQyBDsENQQ9BD0ESwQ1-"'
         except smtplib.SMTPException as e:
-            print(e)
+            print(f"Квитанция не доставлена, проверьте адрес электронной почты, {e}")
             logging.error(f"Квитанция не доставлена, проверьте адрес электронной почты, {e}")
             seen = '\\UNSEEN'
             directory = 'INBOX'
