@@ -120,9 +120,11 @@ class Sender:
                 self.imap = imaplib.IMAP4_SSL(imap_server, imap_port)
                 self.imap.login(user, password)
             except smtplib.SMTPException as e:
+                print(e)
                 logging.error(f"Не корректные настройки почты, {e}")
                 messagebox.showerror("Ошибка", "Не корректные настройки почты")
             except Exception as e:
+                print(e)
                 logging.error(f"Не корректные настройки почты, {e}")
                 messagebox.showerror("Ошибка", f"Не корректные настройки почты, {e}")
             else:
