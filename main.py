@@ -82,6 +82,7 @@ class Sender:
             date_from_file = datetime.strptime(file_list.readline().split()[1], "%Y-%m").date().strftime("%Y-%m")
             if date_from_file != date.today().strftime("%Y-%m"):
                 status = False
+                print("Не корректный месяц выгрузки!")
                 logging.error("Не корректный месяц выгрузки!")
                 messagebox.showerror("Ошибка", 'Не корректный месяц выгрузки')
 
@@ -96,6 +97,7 @@ class Sender:
 
                         if file_name not in os.listdir(self.ent_dir.get()):
                             available_files = False
+                            print(f"Файл {file_name} не найден")
                             logging.error(f"Файл {file_name} не найден")
 
                 if not available_files:
