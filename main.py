@@ -79,11 +79,11 @@ class Sender:
 
         try:
             file_list = open(self.ent_dir.get() + "/files_for_send.txt")
-            date_from_file = datetime.strptime(file_list.readline().split()[1], "%Y-%m-%d").date()
-            if date_from_file != date.today():
+            date_from_file = datetime.strptime(file_list.readline().split()[1], "%Y-%m").date().strftime("%Y-%m")
+            if date_from_file != date.today().strftime("%Y-%m"):
                 status = False
-                logging.error("Не корректная дата выгрузки!")
-                messagebox.showerror("Ошибка", "Не корректная дата выгрузки")
+                logging.error("Не корректный месяц выгрузки!")
+                messagebox.showerror("Ошибка", 'Не корректный месяц выгрузки')
 
             if status:
                 for line in file_list.readlines():
@@ -109,10 +109,10 @@ class Sender:
             print(e)
             logging.error("Найдены не все квитанции")
             messagebox.showerror("Ошибка", "Найдены не все квитанции")
-        except EXCEPTION as e:
+        except Exception as e:
             print(e)
             logging.error(e)
-            messagebox.showerror(e)
+            messagebox.showerror("Ошибка", f"{e}")
         else:
             try:
                 self.mail = smtplib.SMTP_SSL(smtp_server, smtp_port)
@@ -120,25 +120,27 @@ class Sender:
                 self.imap = imaplib.IMAP4_SSL(imap_server, imap_port)
                 self.imap.login(user, password)
             except smtplib.SMTPException as e:
-                logging.error(f"Не корректные настройки почты{e}")
-                messagebox.showerror("Не корректные настройки почты")
-            except EXCEPTION as e:
-                logging.error(f"Не корректные настройки почты{e}")
-                messagebox.showerror("Не корректные настройки почты")
+                logging.error(f"Не корректные настройки почты, {e}")
+                messagebox.showerror("Ошибка", "Не корректные настройки почты")
+            except Exception as e:
+                logging.error(f"Не корректные настройки почты, {e}")
+                messagebox.showerror("Ошибка", f"Не корректные настройки почты, {e}")
             else:
-                percent = 100 / len(mailing_list)
-                for email, file_names in mailing_list.items():
-                    try:
-                        self.send_file(email, file_names)
-                    except smtplib.SMTPException as e:
-                        print(e)
-                        logging.error(e)
-                    except EXCEPTION as e:
-                        print(e)
-                        logging.error(e)
-                    finally:
-                        self.bar['value'] += percent
-                        self.container_act.update()
+                if len(mailing_list) > 0:
+                    percent = 100 / len(mailing_list)
+                    for email, file_names in mailing_list.items():
+                        try:
+                            self.send_file(email, file_names)
+                        except smtplib.SMTPException as e:
+                            print(e)
+                            logging.error(e)
+                        except Exception as e:
+                            print(e)
+                            logging.error(e)
+                        finally:
+                            self.bar['value'] += percent
+                            self.container_act.update()
+                    messagebox.showinfo("Сообщение", "Отправка завершена. Проверьте лог!")
             finally:
                 if self.imap:
                     self.imap.logout()
@@ -184,7 +186,7 @@ class Sender:
             directory = '"&BB4EQgQ,BEAEMAQyBDsENQQ9BD0ESwQ1-"'
         except smtplib.SMTPException as e:
             print(e)
-            logging.error(f"Квитаниция не доставлена, проверьте адрес электроной почты {e}")
+            logging.error(f"Квитанция не доставлена, проверьте адрес электронной почты, {e}")
             seen = '\\UNSEEN'
             directory = 'INBOX'
             msg['Subject'] = "Ваше сообщение не доставлено!"
