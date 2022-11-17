@@ -63,7 +63,7 @@ class Sender:
         status = True
         available_files = True
         file_list = None
-        files_in_list = None
+        mailing_list = {}
         self.bar['value'] = 0
         self.container_act.update()
 
@@ -86,11 +86,17 @@ class Sender:
                 messagebox.showerror("Ошибка", "Не корректная дата выгрузки")
 
             if status:
-                files_in_list = [row.split()[0] for row in file_list.readlines()]
-                for file in files_in_list:
-                    if file not in os.listdir(self.ent_dir.get()):
-                        available_files = False
-                        logging.error(f"Файл {file} не найден")
+                for line in file_list.readlines():
+                    if len(line.strip()) > 0:
+                        email = line.split()[1]
+                        file_name = line.split()[0]
+                        tmp_list = mailing_list.get(email, [])
+                        tmp_list.append(file_name)
+                        mailing_list[email] = tmp_list
+
+                        if file_name not in os.listdir(self.ent_dir.get()):
+                            available_files = False
+                            logging.error(f"Файл {file_name} не найден")
 
                 if not available_files:
                     raise KvitNotFoundError
@@ -120,13 +126,10 @@ class Sender:
                 logging.error(f"Не корректные настройки почты{e}")
                 messagebox.showerror("Не корректные настройки почты")
             else:
-                percent = 100 / len(files_in_list)
-                file_list.seek(0)
-                file_list.readline()
-                for line in file_list.readlines():
-                    file, mail = line.split()
+                percent = 100 / len(mailing_list)
+                for email, file_names in mailing_list.items():
                     try:
-                        self.send_file(f"{self.ent_dir.get()}/{file}", mail)
+                        self.send_file(email, file_names)
                     except smtplib.SMTPException as e:
                         print(e)
                         logging.error(e)
@@ -145,7 +148,7 @@ class Sender:
             if file_list:
                 file_list.close()
 
-    def send_file(self, filename: str, recipient: str):
+    def send_file(self, recipient: str, filenames: list):
         """Функция отправки письма с вложением"""
         msg = MIMEMultipart('alternative')
         msg['Subject'] = self.config["sender_files"]["subject"]
@@ -157,25 +160,26 @@ class Sender:
 
         text = self.config["sender_files"]["text"]
         html = '<html><head></head><body><p>' + text + '</p></body></html>'
-        basename = os.path.basename(filename)
-        filesize = os.path.getsize(filename)
 
         part_text = MIMEText(text, 'plain')
         part_html = MIMEText(html, 'html')
-        part_file = MIMEBase('application', 'octet-stream; name="{}"'.format(basename))
-        part_file.set_payload(open(filename, "rb").read())
-        part_file.add_header('Content-Description', basename)
-        part_file.add_header('Content-Disposition', 'attachment; filename="{}"; size={}'.format(basename, filesize))
-        encoders.encode_base64(part_file)
-
         msg.attach(part_text)
         msg.attach(part_html)
-        msg.attach(part_file)
+
+        for file in filenames:
+            basename = os.path.basename(f"{self.ent_dir.get()}/{file}")
+            filesize = os.path.getsize(f"{self.ent_dir.get()}/{file}")
+            part_file = MIMEBase('application', 'octet-stream; name="{}"'.format(basename))
+            part_file.set_payload(open(f"{self.ent_dir.get()}/{file}", "rb").read())
+            part_file.add_header('Content-Description', basename)
+            part_file.add_header('Content-Disposition', 'attachment; filename="{}"; size={}'.format(basename, filesize))
+            encoders.encode_base64(part_file)
+            msg.attach(part_file)
 
         try:
             self.mail.sendmail(self.config["sender_files"]["sender"], recipient, msg.as_string())
-            print(f"Квитанция {filename} отправленна на почту: {recipient}")
-            logging.info(f"Квитанция {filename} отправленна на почту: {recipient}")
+            print(f"Квитанции отправлены на почту: {recipient}")
+            logging.info(f"Квитанции отправлены на почту: {recipient}")
             seen = '\\SEEN'
             directory = '"&BB4EQgQ,BEAEMAQyBDsENQQ9BD0ESwQ1-"'
         except smtplib.SMTPException as e:

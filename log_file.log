@@ -1,0 +1,3 @@
+2022-11-17 21:51:48,667 ERROR: витаници€ не доставлена, проверьте адрес электроной почты (550, b'Message was not accepted -- invalid mailbox.  Local mailbox in@i-msk.ru is unavailable: user not found')
+2022-11-17 21:51:55,296 INFO: витанции отправлены на почту: maikl_kein@mail.ru
+2022-11-17 21:52:01,371 INFO: витанции отправлены на почту: ca_bir@mail.ru
