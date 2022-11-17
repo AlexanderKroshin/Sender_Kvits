@@ -104,11 +104,11 @@ class Sender:
                     raise KvitNotFoundError
 
         except FileNotFoundError as e:
-            print("Не найден список файлов для отправки")
+            print(f"Не найден список файлов для отправки {e}")
             logging.error("Не найден список файлов для отправки")
             messagebox.showerror("Ошибка", "Не найден список файлов для отправки")
         except KvitNotFoundError as e:
-            print("Найдены не все квитанции")
+            print(f"Найдены не все квитанции {e}")
             logging.error("Найдены не все квитанции")
             messagebox.showerror("Ошибка", "Найдены не все квитанции")
         except Exception as e:
