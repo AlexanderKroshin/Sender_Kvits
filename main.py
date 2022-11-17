@@ -105,11 +105,11 @@ class Sender:
 
         except FileNotFoundError as e:
             print(f"Не найден список файлов для отправки {e}")
-            logging.error("Не найден список файлов для отправки")
+            logging.error(f"Не найден список файлов для отправки {e}")
             messagebox.showerror("Ошибка", "Не найден список файлов для отправки")
         except KvitNotFoundError as e:
             print(f"Найдены не все квитанции {e}")
-            logging.error("Найдены не все квитанции")
+            logging.error(f"Найдены не все квитанции {e}")
             messagebox.showerror("Ошибка", "Найдены не все квитанции")
         except Exception as e:
             print(e)
@@ -128,7 +128,7 @@ class Sender:
             except Exception as e:
                 print(f"Не корректные настройки почты, {e}")
                 logging.error(f"Не корректные настройки почты, {e}")
-                messagebox.showerror("Ошибка", f"Не корректные настройки почты, {e}")
+                messagebox.showerror("Ошибка", f"Не корректные настройки почты")
             else:
                 if len(mailing_list) > 0:
                     percent = 100 / len(mailing_list)
