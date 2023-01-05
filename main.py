@@ -165,7 +165,7 @@ class Sender:
         msg['X-Mailer'] = 'Python/' + (python_version())
 
         text = self.config["sender_files"]["text"]
-        html = '<html><head></head><body><p>' + text + '</p></body></html>'
+        html = '<html><head></head><body><p>' + ',<BR>'.join(text.split(', ')) + '</BR></p></body></html>'
 
         part_text = MIMEText(text, 'plain')
         part_html = MIMEText(html, 'html')
